@@ -17,6 +17,10 @@ export default function DayList() {
   //     });
   // }, []);
 
+  if (days.length === 0) {
+    return <span>Loading...</span>;
+  }
+
   return (
     <ul className="list_day">
       {days.map((day) => (

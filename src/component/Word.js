@@ -1,14 +1,45 @@
 import { useState } from "react";
 
 export default function Words(props) {
+  const [word, setWord] = useState(props.word);
   const [isShow, setIsShow] = useState(false);
-  const [isDone, setIsDone] = useState(props.word.isDone);
+  const [isDone, setIsDone] = useState(word.isDone);
   function toggle() {
     setIsShow((prev) => !prev);
   }
 
   function toggleDone() {
-    setIsDone((prev) => !prev);
+    // setIsDone((prev) => !prev);
+    fetch(`http://localhost:3001/words/${word.id}`, {
+      method: "PUT",
+      headers: {
+        "content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...word,
+        isDone: !isDone,
+      }),
+    }).then((res) => {
+      if (res.ok) {
+        setIsDone((prev) => !prev);
+      }
+    });
+  }
+
+  function del() {
+    if (window.confirm("삭제 하시겠습니까?")) {
+      fetch(`http://localhost:3001/words/${word.id}`, {
+        method: "DELETE",
+      }).then((res) => {
+        if (res.ok) {
+          setWord({ id: 0 });
+        }
+      });
+    }
+  }
+
+  if (word.id === 0) {
+    return null;
   }
 
   return (
@@ -16,11 +47,13 @@ export default function Words(props) {
       <td>
         <input type="checkbox" checked={isDone} onChange={toggleDone} />
       </td>
-      <td>{props.word.eng}</td>
-      <td>{isShow && props.word.kor}</td>
+      <td>{word.eng}</td>
+      <td>{isShow && word.kor}</td>
       <td>
         <button onClick={toggle}> 뜻 {isShow ? "숨기기" : "보기"}</button>
-        <button className="btn_del">삭제</button>
+        <button className="btn_del" onClick={del}>
+          삭제
+        </button>
       </td>
     </tr>
   );
